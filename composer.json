@@ -1,0 +1,46 @@
+{
+    "name": "qwildz/passport-extended",
+    "description": "Laravel Passport with some extra features",
+    "type": "laravel",
+    "keywords": [
+        "jwt",
+        "api",
+        "laravel",
+        "passport",
+        "custom",
+        "openid connect",
+        "openid",
+        "oidc"
+    ],
+    "require": {
+        "php":"^7.0",
+        "laravel/passport": "^5.0",
+        "vinkla/hashids": "^4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Muhammad Resna Rizki Pratama",
+            "email": "resnarizki29@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Qwildz\\PassportExtended\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Qwildz\\PassportExtended\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Qwildz\\PassportExtended\\PassportExtendedServiceProvider"
+            ]
+        }
+    }
+}
