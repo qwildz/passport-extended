@@ -18,7 +18,9 @@ class Client extends PassportClient
         'sso' => 'bool',
     ];
 
-    public function getIdAttribute($value)
+    protected $appends = ['key'];
+
+    public function getKeyAttribute()
     {
         if(Passport::$usesHashids) {
             return Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->encode($this->attributes['id']);

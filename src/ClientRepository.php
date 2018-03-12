@@ -62,7 +62,6 @@ class ClientRepository extends PassportClientRepository
         $client = (new Client)->forceFill([
             'user_id' => $userId,
             'name' => $name,
-            'key' => str_random(config('passport-extended.client.key_length', 20)),
             'secret' => str_random(config('passport-extended.client.secret_length', 40)),
             'redirect' => $redirect,
             'personal_access_client' => $personalAccess,
