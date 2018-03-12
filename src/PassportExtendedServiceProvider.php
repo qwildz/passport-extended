@@ -15,7 +15,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
      */
     public function boot()
     {
-        //$this->setupConfig();
+        $this->setupConfig();
 
         parent::boot();
     }
