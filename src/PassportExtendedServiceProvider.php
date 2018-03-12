@@ -22,11 +22,13 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
     {
         $this->setupConfig();
 
-        parent::boot();
-
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'passport');
 
+        $this->deleteCookieOnLogout();
+
         if ($this->app->runningInConsole()) {
+            $this->registerMigrations();
+
             $this->publishes([
                 __DIR__.'/../resources/views' => base_path('resources/views/vendor/passport'),
             ], 'passport-views');
@@ -34,6 +36,12 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             $this->publishes([
                 __DIR__.'/../resources/assets/js/components' => base_path('resources/assets/js/components/passport'),
             ], 'passport-components');
+
+            $this->commands([
+                Console\InstallCommand::class,
+                Console\ClientCommand::class,
+                Console\KeysCommand::class,
+            ]);
         }
     }
 
