@@ -30,6 +30,7 @@
                         <tr>
                             <th>Client ID</th>
                             <th>Name</th>
+                            <th>Key</th>
                             <th>Secret</th>
                             <th>Trusted</th>
                             <th>SSO</th>
@@ -48,6 +49,11 @@
                             <!-- Name -->
                             <td style="vertical-align: middle;">
                                 {{ client.name }}
+                            </td>
+
+                            <!-- Key -->
+                            <td style="vertical-align: middle;">
+                                <code>{{ client.key ? client.key : "-" }}</code>
                             </td>
 
                             <!-- Secret -->

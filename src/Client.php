@@ -17,4 +17,11 @@ class Client extends PassportClient
         'sso' => 'bool',
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->primaryKey = (Passport::$usesClientKey) ? 'key' : 'id';
+    }
+
 }

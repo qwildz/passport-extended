@@ -4,6 +4,9 @@ namespace Qwildz\PassportExtended;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Bridge\AccessTokenRepository;
+use Laravel\Passport\Console\ClientCommand;
+use Laravel\Passport\Console\InstallCommand;
+use Laravel\Passport\Console\KeysCommand;
 use Laravel\Passport\Guards\TokenGuard;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
@@ -38,9 +41,10 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             ], 'passport-components');
 
             $this->commands([
-                Console\InstallCommand::class,
-                Console\ClientCommand::class,
-                Console\KeysCommand::class,
+                InstallCommand::class,
+                ClientCommand::class,
+                KeysCommand::class,
+                Console\GenerateClientKeyCommand::class
             ]);
         }
     }

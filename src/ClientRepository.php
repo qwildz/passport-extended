@@ -23,9 +23,15 @@ class ClientRepository extends PassportClientRepository
      */
     public function findForUser($clientId, $userId)
     {
-        return Client::where('id', $clientId)
-            ->where('user_id', $userId)
-            ->first();
+        if(Passport::$usesClientKey) {
+            return Client::where('id', $clientId)
+                ->where('user_id', $userId)
+                ->first();
+        } else {
+            return Client::where('key', $clientId)
+                ->where('user_id', $userId)
+                ->first();
+        }
     }
 
     /**
@@ -54,6 +60,7 @@ class ClientRepository extends PassportClientRepository
         $client = (new Client)->forceFill([
             'user_id' => $userId,
             'name' => $name,
+            'key' => str_random(config('passport-extended.client.key_length', 20)),
             'secret' => str_random(config('passport-extended.client.secret_length', 40)),
             'redirect' => $redirect,
             'personal_access_client' => $personalAccess,
