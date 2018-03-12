@@ -1,6 +1,6 @@
 <?php
 
-namespace Qwildz\PassportExtendedPassport\Http\Controllers;
+namespace Qwildz\PassportExtended\Http\Controllers;
 
 use Laravel\Passport\Http\Controllers\ApproveAuthorizationController as PassportApproveAuthorizationController;
 
