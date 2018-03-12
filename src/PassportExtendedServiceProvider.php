@@ -18,6 +18,18 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
         $this->setupConfig();
 
         parent::boot();
+
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'passport');
+
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../resources/views' => base_path('resources/views/vendor/passport'),
+            ], 'passport-views');
+
+            $this->publishes([
+                __DIR__.'/../resources/assets/js/components' => base_path('resources/assets/js/components/passport'),
+            ], 'passport-components');
+        }
     }
 
     /**
