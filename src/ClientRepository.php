@@ -15,7 +15,11 @@ class ClientRepository extends PassportClientRepository
     }
 
     /**
-     * @inheritdoc
+     * Get a client instance for the given ID and user ID.
+     *
+     * @param  int  $clientId
+     * @param  mixed  $userId
+     * @return Client|null
      */
     public function findForUser($clientId, $userId)
     {
@@ -65,12 +69,19 @@ class ClientRepository extends PassportClientRepository
     }
 
     /**
-     * @inheritdoc
+     * Update the given client.
+     *
+     * @param  Client $client
+     * @param  string $name
+     * @param  string $redirect
+     * @param  bool $trusted
+     * @param  bool $sso
+     * @return \Laravel\Passport\Client
      */
-    public function update(Client $client, $name, $redirect, $trusted, $sso)
+    public function update2(Client $client, $name, $redirect, $trusted, $sso)
     {
         $client->forceFill([
-            'name' => $name, 'redirect' => $redirect, 'trusted' => $trusted, 'sso' =>$sso,
+            'name' => $name, 'redirect' => $redirect, 'trusted' => $trusted, 'sso' => $sso
         ])->save();
 
         return $client;
@@ -79,7 +90,7 @@ class ClientRepository extends PassportClientRepository
     /**
      * @inheritdoc
      */
-    public function regenerateSecret(Client $client)
+    public function regenerateSecret(\Laravel\Passport\Client $client)
     {
         $client->forceFill([
             'secret' => str_random(config('passport-extended.client.secret_length', 40)),
