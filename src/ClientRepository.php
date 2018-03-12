@@ -13,7 +13,7 @@ class ClientRepository extends PassportClientRepository
     public function find($id)
     {
         if(Passport::$usesHashids) {
-            $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id);
+            $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id)[0];
         }
         return Client::find($id);
     }
@@ -28,7 +28,7 @@ class ClientRepository extends PassportClientRepository
     public function findForUser($clientId, $userId)
     {
         if(Passport::$usesHashids) {
-            $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId);
+            $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId)[0];
         }
 
         return Client::where('id', $clientId)
