@@ -25,9 +25,9 @@ class ClientRepository extends PassportClientRepository
      * @param  mixed  $userId
      * @return Client|null
      */
-    public function findForUser($clientId, $userId)
+    public function findForUser($clientId, $userId, $useHashids = true)
     {
-        if(Passport::$usesHashids) {
+        if(Passport::$usesHashids && $useHashids) {
             $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId)[0];
         }
 

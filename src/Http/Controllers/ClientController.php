@@ -43,7 +43,7 @@ class ClientController extends PassportClientController
 
     public function update(Request $request, $clientId)
     {
-        $client = $this->clients->findForUser($clientId, $request->user()->getKey());
+        $client = $this->clients->findForUser($clientId, $request->user()->getKey(), false);
 
         if (! $client) {
             return new Response('', 404);
@@ -58,5 +58,17 @@ class ClientController extends PassportClientController
             $client, $request->name, $request->redirect, $request->trusted, $request->sso
         );
     }
+    
+    public function destroy(Request $request, $clientId)
+    {
+        $client = $this->clients->findForUser($clientId, $request->user()->getKey(), false);
 
+        if (! $client) {
+            return new Response('', 404);
+        }
+
+        $this->clients->delete(
+            $client
+        );
+    }
 }
