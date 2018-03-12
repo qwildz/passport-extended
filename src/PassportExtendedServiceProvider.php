@@ -1,11 +1,16 @@
 <?php
 namespace Qwildz\PassportExtended;
 
+use Illuminate\Auth\RequestGuard;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Bridge\AccessTokenRepository;
+use Laravel\Passport\Guards\TokenGuard;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
 use Laravel\Passport\Bridge\ScopeRepository;
+use Laravel\Passport\TokenRepository;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\ResourceServer;
 
 class PassportExtendedServiceProvider extends PassportServiceProvider
 {
@@ -40,12 +45,28 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
     public function makeAuthorizationServer()
     {
         return new AuthorizationServer(
-            $this->app->make(ClientRepository::class),
+            $this->app->make(Bridge\ClientRepository::class),
             $this->app->make(AccessTokenRepository::class),
             $this->app->make(ScopeRepository::class),
             $this->makeCryptKey('oauth-private.key'),
             app('encrypter')->getKey()
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function makeGuard(array $config)
+    {
+        return new RequestGuard(function ($request) use ($config) {
+            return (new TokenGuard(
+                $this->app->make(ResourceServer::class),
+                Auth::createUserProvider($config['provider']),
+                $this->app->make(TokenRepository::class),
+                $this->app->make(ClientRepository::class),
+                $this->app->make('encrypter')
+            ))->user($request);
+        }, $this->app['request']);
     }
 
     protected function setupConfig()
