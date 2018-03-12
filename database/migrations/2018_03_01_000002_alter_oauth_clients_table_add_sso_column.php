@@ -14,7 +14,7 @@ class AlterOauthClientsTableAddSsoColumn extends Migration
     public function up()
     {
         Schema::table('oauth_clients', function (Blueprint $table) {
-            $table->boolean('sso')->default(true);
+            $table->boolean('sso')->after('trusted')->default(true);
         });
     }
     /**

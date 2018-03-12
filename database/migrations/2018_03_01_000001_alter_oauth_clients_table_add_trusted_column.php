@@ -14,7 +14,7 @@ class AlterOauthClientsTableAddTrustedColumn extends Migration
     public function up()
     {
         Schema::table('oauth_clients', function (Blueprint $table) {
-            $table->boolean('trusted')->default(false);
+            $table->boolean('trusted')->after('revoked')->default(false);
         });
     }
     /**
