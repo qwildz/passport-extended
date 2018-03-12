@@ -31,6 +31,8 @@
                             <th>Client ID</th>
                             <th>Name</th>
                             <th>Secret</th>
+                            <th>Trusted</th>
+                            <th>SSO</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -55,7 +57,12 @@
 
                             <!-- Trusted -->
                             <td style="vertical-align: middle;">
-                                <code>{{ client.secret }}</code>
+                                <code>{{ client.trusted ? "Yes" : "No" }}</code>
+                            </td>
+
+                            <!-- SSO -->
+                            <td style="vertical-align: middle;">
+                                <code>{{ client.sso ? "Yes" : "No" }}</code>
                             </td>
 
                             <!-- Edit Button -->
@@ -130,6 +137,34 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <!-- Trusted -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">Trusted</label>
+
+                                <div class="col-md-9">
+                                    <input type="checkbox" name="trusted"
+                                           @keyup.enter="store" v-model="createForm.trusted">
+
+                                    <span class="form-text text-muted">
+                                        Authorization confirmation page will be passed if the client is trusted.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- SSO -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">SSO</label>
+
+                                <div class="col-md-9">
+                                    <input type="checkbox" name="sso"
+                                           @keyup.enter="store" v-model="createForm.sso">
+
+                                    <span class="form-text text-muted">
+                                        User will be not asked to enter the username and password if have logged in before.
+                                    </span>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -198,6 +233,34 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <!-- Trusted -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">Trusted</label>
+
+                                <div class="col-md-9">
+                                    <input type="checkbox" name="trusted"
+                                           @keyup.enter="update" v-model="editForm.trusted">
+
+                                    <span class="form-text text-muted">
+                                        Authorization confirmation page will be passed if the client is trusted.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- SSO -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">SSO</label>
+
+                                <div class="col-md-9">
+                                    <input type="checkbox" name="sso"
+                                           @keyup.enter="update" v-model="editForm.sso">
+
+                                    <span class="form-text text-muted">
+                                        User will be not asked to enter the username and password if have logged in before.
+                                    </span>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -227,13 +290,17 @@
                 createForm: {
                     errors: [],
                     name: '',
-                    redirect: ''
+                    redirect: '',
+                    trusted: false,
+                    sso: true
                 },
 
                 editForm: {
                     errors: [],
                     name: '',
-                    redirect: ''
+                    redirect: '',
+                    trusted: false,
+                    sso: true
                 }
             };
         },
@@ -302,6 +369,8 @@
                 this.editForm.id = client.id;
                 this.editForm.name = client.name;
                 this.editForm.redirect = client.redirect;
+                this.editForm.trusted = client.trusted;
+                this.editForm.sso = client.sso;
 
                 $('#modal-edit-client').modal('show');
             },
