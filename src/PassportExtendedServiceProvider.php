@@ -43,8 +43,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             $this->commands([
                 InstallCommand::class,
                 ClientCommand::class,
-                KeysCommand::class,
-                Console\GenerateClientKeyCommand::class
+                KeysCommand::class
             ]);
         }
     }
