@@ -10,9 +10,9 @@ class ClientRepository extends PassportClientRepository
     /**
      * @inheritdoc
      */
-    public function find($id)
+    public function find($id, $useHashids = true)
     {
-        if(Passport::$usesHashids) {
+        if(Passport::$usesHashids && $useHashids) {
             $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id)[0];
         }
         return Client::find($id);
@@ -106,5 +106,15 @@ class ClientRepository extends PassportClientRepository
         ])->save();
 
         return $client;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function revoked($id)
+    {
+        $client = $this->find($id, false);
+
+        return is_null($client) || $client->revoked;
     }
 }

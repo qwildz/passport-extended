@@ -29,7 +29,7 @@ class AuthorizationController extends PassportAuthorizationController
 
             $token = $tokens->findValidToken(
                 $user = $request->user(),
-                $client = $clients->find($authRequest->getClient()->getIdentifier())
+                $client = $clients->find($authRequest->getClient()->getIdentifier(), false)
             );
 
             // Client is not permit sso, re-login
