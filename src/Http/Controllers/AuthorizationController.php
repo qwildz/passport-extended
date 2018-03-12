@@ -8,6 +8,7 @@ use Laravel\Passport\Http\Controllers\AuthorizationController as PassportAuthori
 use Laravel\Passport\TokenRepository;
 use Laravel\Passport\ClientRepository;
 use Psr\Http\Message\ServerRequestInterface;
+use Qwildz\PassportExtended\Passport;
 
 class AuthorizationController extends PassportAuthorizationController
 {
@@ -32,8 +33,14 @@ class AuthorizationController extends PassportAuthorizationController
                 $client = $clients->find($authRequest->getClient()->getIdentifier(), false)
             );
 
+            if(Passport::$usesHashids) {
+                $key = 'login_'.$client->key.'_'.$request->get('state');
+            } else {
+                $key = 'login_'.$client->getKey().'_'.$request->get('state');
+            }
+
             // Client is not permit sso, re-login
-            if(!$client->sso && $request->session()->get('login_'.$client->getKey().'_'.$request->get('state')) != true) {
+            if(!$client->sso && $request->session()->get($key) != true) {
                 return $this->response->redirectGuest($url->route('login'));
             }
 

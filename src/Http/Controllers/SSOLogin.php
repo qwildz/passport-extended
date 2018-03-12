@@ -7,6 +7,15 @@ use Qwildz\PassportExtended\Client;
 
 trait SSOLogin
 {
+    public function showLoginForm(Request $request)
+    {
+        if(!$this->isSSONeedLogin($request) && $request->user()) {
+            return $this->sendLoginResponse($request);
+        }
+
+        return view('auth.login');
+    }
+
     protected function authenticated(Request $request, $user) {
         $this->setSSOHasLogin($request);
     }
@@ -47,4 +56,6 @@ trait SSOLogin
         parse_str($query, $output);
         return $output;
     }
+
+    abstract protected function sendLoginResponse(Request $request);
 }
