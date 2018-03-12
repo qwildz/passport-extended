@@ -14,11 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class AuthCodeGrant extends LeagueAuthCodeGrant
 {
     /**
-     * @var \DateInterval
-     */
-    private $authCodeTTL;
-
-    /**
      * @var bool
      */
     private $enableCodeExchangeProof = false;

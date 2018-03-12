@@ -11,7 +11,7 @@ class Passport extends LaravelPassport
      *
      * @var bool
      */
-    public static $usesClientKey = false;
+    public static $usesHashids = false;
 
     /**
      * @inheritdoc
@@ -32,9 +32,9 @@ class Passport extends LaravelPassport
      *
      * @return static
      */
-    public static function useClientKey()
+    public static function useHashids()
     {
-        static::$usesClientKey = true;
+        static::$usesHashids = true;
 
         return new static;
     }

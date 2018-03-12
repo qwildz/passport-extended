@@ -20,6 +20,7 @@ class AuthorizationController extends PassportAuthorizationController
                               TokenRepository $tokens)
     {
         $url = app(UrlGenerator::class);
+        $clients = app(\Qwildz\PassportExtended\ClientRepository::class);
 
         return $this->withErrorHandling(function () use ($psrRequest, $request, $clients, $tokens, $url) {
             $authRequest = $this->server->validateAuthorizationRequest($psrRequest);

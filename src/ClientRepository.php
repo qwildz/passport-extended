@@ -3,6 +3,7 @@
 namespace Qwildz\PassportExtended;
 
 use Laravel\Passport\ClientRepository as PassportClientRepository;
+use Vinkla\Hashids\Facades\Hashids;
 
 class ClientRepository extends PassportClientRepository
 {
@@ -11,6 +12,9 @@ class ClientRepository extends PassportClientRepository
      */
     public function find($id)
     {
+        if(Passport::$usesHashids) {
+            $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id);
+        }
         return Client::find($id);
     }
 
@@ -23,15 +27,13 @@ class ClientRepository extends PassportClientRepository
      */
     public function findForUser($clientId, $userId)
     {
-        if(Passport::$usesClientKey) {
-            return Client::where('id', $clientId)
-                ->where('user_id', $userId)
-                ->first();
-        } else {
-            return Client::where('key', $clientId)
-                ->where('user_id', $userId)
-                ->first();
+        if(Passport::$usesHashids) {
+            $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId);
         }
+
+        return Client::where('id', $clientId)
+            ->where('user_id', $userId)
+            ->first();
     }
 
     /**

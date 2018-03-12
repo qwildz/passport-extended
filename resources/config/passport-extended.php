@@ -12,7 +12,7 @@ return [
     |
     */
     'client' => [
-        'key_length' => 20,
+        'key_hashid_connection' => 'main',
         'secret_length' => 40,
     ],
 
