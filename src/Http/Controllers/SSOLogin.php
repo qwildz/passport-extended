@@ -4,6 +4,8 @@ namespace Qwildz\PassportExtended\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Qwildz\PassportExtended\Client;
+use Qwildz\PassportExtended\Passport;
+use Vinkla\Hashids\Facades\Hashids;
 
 trait SSOLogin
 {
@@ -43,7 +45,13 @@ trait SSOLogin
     {
         $parameter = $this->getClientParameter($request);
         if(isset($parameter['client_id'])) {
-            return Client::find($parameter['client_id']);
+            if(Passport::$usesHashids) {
+                $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($parameter['client_id'])[0];
+            } else {
+                $clientId = $parameter['client_id'];
+            }
+            
+            return Client::find($clientId);
         }
 
         return null;
