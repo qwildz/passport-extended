@@ -21,9 +21,9 @@ class Client extends PassportClient
     public function getIdAttribute($value)
     {
         if(Passport::$usesHashids) {
-            return Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->encode($value);
+            return Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->encode($this->attributes['id']);
         } else {
-            return $value;
+            return '-';
         }
     }
 
