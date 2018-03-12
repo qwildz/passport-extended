@@ -12,6 +12,7 @@ return [
     |
     */
     'client' => [
+        'key_length' => 20,
         'secret_length' => 40,
     ],
 
