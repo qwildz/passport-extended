@@ -29,8 +29,8 @@ class ClientRepository extends PassportClientRepository
             'personal_access_client' => $personalAccess,
             'password_client' => $password,
             'revoked' => false,
-            'trusted' => $password,
-            'sso' => $password,
+            'trusted' => $trusted,
+            'sso' => $sso,
         ]);
 
         $client->save();
