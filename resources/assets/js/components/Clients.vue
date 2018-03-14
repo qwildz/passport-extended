@@ -34,6 +34,7 @@
                             <th>Secret</th>
                             <th>Trusted</th>
                             <th>SSO</th>
+                            <th>SLO</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -69,6 +70,11 @@
                             <!-- SSO -->
                             <td style="vertical-align: middle;">
                                 <code>{{ client.sso ? "Yes" : "No" }}</code>
+                            </td>
+
+                            <!-- SLO -->
+                            <td style="vertical-align: middle;">
+                                <code>{{ client.slo ? "Yes" : "No" }}</code>
                             </td>
 
                             <!-- Edit Button -->
@@ -171,6 +177,20 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <!-- SLO URL -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">SLO URL</label>
+
+                                <div class="col-md-9">
+                                    <input type="text" class="form-control" name="slo"
+                                           @keyup.enter="store" v-model="createForm.slo">
+
+                                    <span class="form-text text-muted">
+                                        Provide client's logout URL to automatically logout user from the client.
+                                    </span>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -267,6 +287,20 @@
                                     </span>
                                 </div>
                             </div>
+
+                            <!-- SLO URL -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">SLO URL</label>
+
+                                <div class="col-md-9">
+                                    <input type="text" class="form-control" name="slo"
+                                           @keyup.enter="store" v-model="editForm.slo">
+
+                                    <span class="form-text text-muted">
+                                        Provide client's logout URL to automatically logout user from the client.
+                                    </span>
+                                </div>
+                            </div>
                         </form>
                     </div>
 
@@ -298,7 +332,8 @@
                     name: '',
                     redirect: '',
                     trusted: false,
-                    sso: true
+                    sso: true,
+                    slo: ''
                 },
 
                 editForm: {
@@ -306,7 +341,8 @@
                     name: '',
                     redirect: '',
                     trusted: false,
-                    sso: true
+                    sso: true,
+                    slo: ''
                 }
             };
         },
@@ -377,6 +413,7 @@
                 this.editForm.redirect = client.redirect;
                 this.editForm.trusted = client.trusted;
                 this.editForm.sso = client.sso;
+                this.editForm.slo = client.slo;
 
                 $('#modal-edit-client').modal('show');
             },
