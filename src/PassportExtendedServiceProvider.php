@@ -1,9 +1,11 @@
 <?php
 namespace Qwildz\PassportExtended;
 
+use DateInterval;
 use Illuminate\Auth\RequestGuard;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Passport\Bridge\AccessTokenRepository;
+use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Console\ClientCommand;
 use Laravel\Passport\Console\InstallCommand;
 use Laravel\Passport\Console\KeysCommand;
@@ -13,6 +15,7 @@ use Laravel\Passport\PassportServiceProvider;
 use Laravel\Passport\Bridge\ScopeRepository;
 use Laravel\Passport\TokenRepository;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\ResourceServer;
 
 class PassportExtendedServiceProvider extends PassportServiceProvider
@@ -57,7 +60,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
     {
         return new AuthorizationServer(
             $this->app->make(Bridge\ClientRepository::class),
-            $this->app->make(AccessTokenRepository::class),
+            $this->app->make(Bridge\AccessTokenRepository::class),
             $this->app->make(ScopeRepository::class),
             $this->makeCryptKey('oauth-private.key'),
             app('encrypter')->getKey()
@@ -78,6 +81,19 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
                 $this->app->make('encrypter')
             ))->user($request);
         }, $this->app['request']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function buildAuthCodeGrant()
+    {
+        return new AuthCodeGrant(
+            $this->app->make(Bridge\AuthCodeRepository::class),
+            $this->app->make(RefreshTokenRepository::class),
+            new DateInterval('PT10M'),
+            $this->app->make(Connection::class)
+        );
     }
 
     protected function setupConfig()

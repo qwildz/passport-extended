@@ -2,16 +2,15 @@
 
 namespace Qwildz\PassportExtended\Http\Controllers;
 
-
-use Defuse\Crypto\Crypto;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
-use Laravel\Passport\Token;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
+use Qwildz\PassportExtended\ClientSession;
+use Qwildz\PassportExtended\Token;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
@@ -37,7 +36,10 @@ class SessionController
         try {
             $sid = $encrypter->decrypt($request->get('sid'));
 
-            // Insert new
+            $clientSession = new ClientSession();
+            $clientSession->id = $sid;
+            $clientSession->token_id = $instance->id;
+            $clientSession->save();
 
             return ['status' => 'ok'];
         } catch (DecryptException $exception) {

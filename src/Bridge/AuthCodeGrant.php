@@ -143,7 +143,7 @@ class AuthCodeGrant extends LeagueAuthCodeGrant
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $authCodePayload->user_id, $scopes);
         $refreshToken = $this->issueRefreshToken($accessToken);
 
-        $this->database->table('oauth_sessions')->where('code_id', $authCodePayload->auth_code_id)
+        $this->database->table('oauth_auth_codes')->where('id', $authCodePayload->auth_code_id)
             ->update([
                 'token_id' => $accessToken->getIdentifier(),
             ]);

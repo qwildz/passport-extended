@@ -41,11 +41,14 @@ class AuthCodeRepository extends PassportAuthCodeRepository
      */
     public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)
     {
-        parent::persistNewAuthCode($authCodeEntity);
-
-        $this->database->table('oauth_sessions')->insert([
+        $this->database->table('oauth_auth_codes')->insert([
+            'id' => $authCodeEntity->getIdentifier(),
+            'user_id' => $authCodeEntity->getUserIdentifier(),
+            'client_id' => $authCodeEntity->getClient()->getIdentifier(),
+            'scopes' => $this->formatScopesForStorage($authCodeEntity->getScopes()),
+            'revoked' => false,
+            'expires_at' => $authCodeEntity->getExpiryDateTime(),
             'session_id' => $this->session->getId(),
-            'code_id' => $authCodeEntity->getIdentifier(),
         ]);
     }
 }
