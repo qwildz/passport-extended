@@ -13,7 +13,7 @@ class AlterOauthAuthCodesTableAddSessionIdColumn extends Migration
      */
     public function up()
     {
-        Schema::create('oauth_auth_codes', function (Blueprint $table) {
+        Schema::table('oauth_auth_codes', function (Blueprint $table) {
             $table->string('session_id')->nullable();
         });
     }
