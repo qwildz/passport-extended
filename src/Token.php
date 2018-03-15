@@ -15,14 +15,13 @@ class Token extends PassportToken
         'session_id' => 'string',
     ];
 
-    public function session()
+    public function authCode()
     {
-        return $this->belongsTo(Session::class);
+        return $this->belongsTo(AuthCode::class);
     }
 
     public function clientSession()
     {
         return $this->hasOne(ClientSession::class);
     }
-
 }

@@ -5,6 +5,7 @@ use DateInterval;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Passport\Bridge\AccessTokenRepository;
 use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Console\ClientCommand;
 use Laravel\Passport\Console\InstallCommand;
@@ -15,8 +16,8 @@ use Laravel\Passport\PassportServiceProvider;
 use Laravel\Passport\Bridge\ScopeRepository;
 use Laravel\Passport\TokenRepository;
 use League\OAuth2\Server\AuthorizationServer;
-use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\ResourceServer;
+use Qwildz\PassportExtended\Bridge\AuthCodeGrant;
 
 class PassportExtendedServiceProvider extends PassportServiceProvider
 {
@@ -60,7 +61,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
     {
         return new AuthorizationServer(
             $this->app->make(Bridge\ClientRepository::class),
-            $this->app->make(Bridge\AccessTokenRepository::class),
+            $this->app->make(AccessTokenRepository::class),
             $this->app->make(ScopeRepository::class),
             $this->makeCryptKey('oauth-private.key'),
             app('encrypter')->getKey()

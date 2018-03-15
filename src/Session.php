@@ -46,10 +46,10 @@ class Session extends Model
     /**
      * Get all of the tokens that belong to the current sso session.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function tokens()
     {
-        return $this->hasMany(Token::class);
+        return $this->hasManyThrough(Token::class, AuthCode::class);
     }
 }

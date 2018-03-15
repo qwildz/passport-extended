@@ -19,4 +19,8 @@ class AuthCode extends PassportAuthCode
         return $this->belongsTo(Session::class);
     }
 
+    public function token()
+    {
+        return $this->hasOne(Token::class);
+    }
 }

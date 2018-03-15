@@ -14,7 +14,7 @@ class AlterOauthAccessTokensTableAddSessionIdColumn extends Migration
     public function up()
     {
         Schema::table('oauth_access_tokens', function (Blueprint $table) {
-            $table->string('session_id')->nullable();
+            $table->string('auth_code_id')->nullable();
         });
     }
 
