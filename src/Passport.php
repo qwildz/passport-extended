@@ -41,7 +41,7 @@ class Passport extends LaravelPassport
             });
 
             $router->group(['middleware' => ['api']], function ($router) {
-                $router->get('/{token}', [
+                $router->delete('/{token}', [
                     'uses' => 'SessionController@endSession',
                 ]);
             });
