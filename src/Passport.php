@@ -2,6 +2,7 @@
 
 namespace Qwildz\PassportExtended;
 
+use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Passport as LaravelPassport;
 
 class Passport extends LaravelPassport
