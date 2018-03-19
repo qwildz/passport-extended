@@ -25,6 +25,26 @@ class Passport extends LaravelPassport
         $options = array_merge($defaultOptions, $options);
 
         parent::routes($callback, $options);
+
+        $defaultOptions = [
+            'prefix' => 'session',
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+
+        Route::group($options, function ($router) use ($callback) {
+            $router->group(['middleware' => ['auth:api']], function ($router) {
+                $router->post('/set-sid', [
+                    'uses' => 'SessionController@setSessionId',
+                ]);
+            });
+
+            $router->group(['middleware' => ['api']], function ($router) {
+                $router->get('/{token}', [
+                    'uses' => 'SessionController@endSession',
+                ]);
+            });
+        });
     }
 
     /**

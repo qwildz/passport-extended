@@ -10,6 +10,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use League\OAuth2\Server\CryptKey;
 use Qwildz\PassportExtended\ClientSession;
+use Qwildz\PassportExtended\Passport;
 use Qwildz\PassportExtended\Token;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
@@ -31,7 +32,7 @@ class SessionController
         $instance = $this->getTokenInstance($token->getClaim('jti'));
         $client = $instance->client;
 
-        $encrypter = new Encrypter($client->secret);
+        $encrypter = new Encrypter(hash('md5', $client->secret), 'AES-256-CBC');
 
         try {
             $sid = $encrypter->decrypt($request->get('sid'));
@@ -39,6 +40,7 @@ class SessionController
             $clientSession = new ClientSession();
             $clientSession->id = $sid;
             $clientSession->token_id = $instance->id;
+            $clientSession->revoked = false;
             $clientSession->save();
 
             return ['status' => 'ok'];
@@ -47,12 +49,12 @@ class SessionController
         }
     }
 
-    public function endSession(Request $request)
+    public function endSession(Request $request, $token)
     {
         if(!$request->has('token'))
             throw new BadRequestHttpException();
 
-        $token = $this->parseJwt($request->get('token'));
+        $token = $this->parseJwt($token);
 
         $key = new CryptKey(
             'file://'.Passport::keyPath('oauth-public.key'),
