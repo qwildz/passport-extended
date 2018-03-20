@@ -10,6 +10,7 @@ class AuthCode extends PassportAuthCode
      * @inheritdoc
      */
     protected $casts = [
+        'id' => 'string',
         'revoked' => 'bool',
         'session_id' => 'string',
     ];

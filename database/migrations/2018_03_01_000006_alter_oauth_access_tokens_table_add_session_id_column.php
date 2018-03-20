@@ -26,7 +26,7 @@ class AlterOauthAccessTokensTableAddSessionIdColumn extends Migration
     public function down()
     {
         Schema::table('oauth_access_tokens', function (Blueprint $table) {
-            $table->dropColumn('session_id');
+            $table->dropColumn('auth_code_id');
         });
     }
 }

@@ -10,9 +10,10 @@ class Token extends PassportToken
      * @inheritdoc
      */
     protected $casts = [
+        'id' => 'string',
         'scopes' => 'array',
         'revoked' => 'bool',
-        'session_id' => 'string',
+        'auth_code_id' => 'string',
     ];
 
     /**
