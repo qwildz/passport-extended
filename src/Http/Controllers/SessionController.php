@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256 as HmacSha256;
-use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
 use League\OAuth2\Server\CryptKey;
 use Qwildz\PassportExtended\ClientSession;
@@ -67,15 +66,12 @@ class SessionController
             throw new BadRequestHttpException();
 
         if(! $instance = $this->getTokenInstance($token->getClaim('jti')))
-            throw new ModelNotFoundException('Token is not exists.');
+            throw new ModelNotFoundException('Token is invalid.');
 
         $instance->revoke();
 
-        // DOING BACK CHANNEL LOGOUT
         if($instance->authCode) {
             $session = Session::with('authCodes.token.clientSession', 'authCodes.client')->find($instance->authCode->session_id);
-
-            $privateKey = $this->makeCryptKey('oauth-private.key');
 
             foreach($session->authCodes as $code) {
                 if(! $code->client->slo) continue;
@@ -88,7 +84,7 @@ class SessionController
 
                 $secret = $code->client->secret;
 
-                $token = $builder->unsign()
+                $logoutToken = $builder->unsign()
                     ->setIssuer(env('APP_URL'))
                     ->setSubject($sub)
                     ->setAudience($aud)
@@ -101,7 +97,7 @@ class SessionController
 
                 $httpClient->post($slo, [
                     'form_params' => [
-                        'token' => $token,
+                        'token' => $logoutToken,
                     ]
                 ]);
             }
@@ -123,7 +119,7 @@ class SessionController
     protected function makeCryptKey($key)
     {
         return new CryptKey(
-            'file://'.Passport::keyPath('oauth-private.key'),
+            'file://'.Passport::keyPath($key),
             null,
             false
         );
