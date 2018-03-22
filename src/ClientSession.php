@@ -2,6 +2,7 @@
 
 namespace Qwildz\PassportExtended;
 
+use Illuminate\Support\Carbon;
 use Laravel\Passport\Client as PassportClient;
 
 class ClientSession extends PassportClient
@@ -31,6 +32,11 @@ class ClientSession extends PassportClient
     public function token()
     {
         return $this->belongsTo(Token::class);
+    }
+
+    public function revoke()
+    {
+        return $this->forceFill(['revoked' => true, 'revoked_at' => Carbon::now()])->save();
     }
 
 }
