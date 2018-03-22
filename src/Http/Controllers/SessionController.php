@@ -38,10 +38,11 @@ class SessionController
         $instance = $this->getTokenInstance($token->getClaim('jti'));
         $client = $instance->client;
 
-        $encrypter = new Encrypter(hash('md5', $client->secret), 'AES-256-CBC');
+        //$encrypter = new Encrypter(hash('md5', $client->secret), 'AES-256-CBC');
 
         try {
-            $sid = $encrypter->decrypt($request->get('sid'));
+            //$sid = $encrypter->decrypt($request->get('sid'));
+            $sid = $request->get('sid');
 
             $clientSession = new ClientSession();
             $clientSession->id = $sid;
