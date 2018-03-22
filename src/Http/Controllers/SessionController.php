@@ -2,6 +2,7 @@
 
 namespace Qwildz\PassportExtended\Http\Controllers;
 
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256 as HmacSha256;
+use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
 use League\OAuth2\Server\CryptKey;
 use Qwildz\PassportExtended\ClientSession;
@@ -53,16 +55,13 @@ class SessionController
         }
     }
 
-    public function endSession(Request $request, Builder $builder, Client $httpClient, $token)
+    public function endSession(Builder $builder, Client $httpClient, $token)
     {
-        if(!$request->has('token'))
-            throw new BadRequestHttpException();
-
         $token = $this->parseJwt($token);
 
         $key = $this->makeCryptKey('oauth-public.key');
 
-        if(! $token->verify(new RsaSha256(), $key))
+        if(! $token->verify(new RsaSha256(), new Key($key->getKeyPath(), $key->getPassPhrase())))
             throw new BadRequestHttpException();
 
         if(! $instance = $this->getTokenInstance($token->getClaim('jti')))
@@ -74,7 +73,9 @@ class SessionController
             $session = Session::with('authCodes.token.clientSession', 'authCodes.client')->find($instance->authCode->session_id);
 
             foreach($session->authCodes as $code) {
-                if(! $code->client->slo) continue;
+                if(! $code->client->slo || ! $code->token) continue;
+                if(! $code->token->clientSession) continue;
+                if($code->token->clientSession->revoked) continue;
 
                 $sub = $instance->user_id;
                 $sid = $code->token->clientSession->id;
@@ -85,7 +86,7 @@ class SessionController
                 $secret = $code->client->secret;
 
                 $logoutToken = $builder->unsign()
-                    ->setIssuer(env('APP_URL'))
+                    ->setIssuer(config('app.url'))
                     ->setSubject($sub)
                     ->setAudience($aud)
                     ->setIssuedAt(time())
@@ -95,11 +96,17 @@ class SessionController
                     ->sign(new HmacSha256(), $secret)
                     ->getToken();
 
-                $httpClient->post($slo, [
-                    'form_params' => [
-                        'token' => $logoutToken,
-                    ]
-                ]);
+                try {
+                    $response = $httpClient->post($slo, [
+                        'form_params' => [
+                            'token' => (string) $logoutToken,
+                        ]
+                    ]);
+
+                    if($response->getStatusCode() == 200 || (int) $response->getBody() == 200) {
+                        $code->token->clientSession->revoke();
+                    }
+                } catch (Exception $exception) {}
             }
         }
 
