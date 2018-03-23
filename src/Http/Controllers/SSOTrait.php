@@ -7,21 +7,8 @@ use Qwildz\PassportExtended\Client;
 use Qwildz\PassportExtended\Passport;
 use Vinkla\Hashids\Facades\Hashids;
 
-trait SSOLogin
+trait SSOTrait
 {
-    public function showLoginForm(Request $request)
-    {
-        if(!$this->isSSONeedLogin($request) && $request->user()) {
-            return $this->sendLoginResponse($request);
-        }
-
-        return view('auth.login');
-    }
-
-    protected function authenticated(Request $request, $user) {
-        $this->setSSOHasLogin($request);
-    }
-
     protected function isSSONeedLogin(Request $request)
     {
         $client = $this->getClient($request);
@@ -50,7 +37,7 @@ trait SSOLogin
             } else {
                 $clientId = $parameter['client_id'];
             }
-            
+
             return Client::find($clientId);
         }
 
@@ -64,6 +51,4 @@ trait SSOLogin
         parse_str($query, $output);
         return $output;
     }
-
-    abstract protected function sendLoginResponse(Request $request);
 }
