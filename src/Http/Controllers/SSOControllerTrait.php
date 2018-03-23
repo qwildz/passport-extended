@@ -65,7 +65,7 @@ trait SSOControllerTrait
         $this->clearLoginAttempts($request);
 
         return $this->authenticated($request, $this->guard()->user())
-                ?: redirect()->intended($this->redirectPath());
+            ?: redirect()->intended($this->redirectPath());
     }
 
     public function logout(Request $request)
@@ -79,26 +79,28 @@ trait SSOControllerTrait
     {
         $session = Session::with('authCodes.token.clientSession', 'authCodes.client')->find($request->session()->getId());
 
-        foreach($session->authCodes as $code) {
-            // Skip if client doesn't support SLO or auth code hasn't been exchanged into access token
-            if(! $code->client->slo || ! $code->token) continue;
+        if ($session) {
+            foreach ($session->authCodes as $code) {
+                // Skip if client doesn't support SLO or auth code hasn't been exchanged into access token
+                if (!$code->client->slo || !$code->token) continue;
 
-            // Skip if token doesn't have client session
-            if(! $code->token->clientSession) continue;
+                // Skip if token doesn't have client session
+                if (!$code->token->clientSession) continue;
 
-            // Skip if client session has been revoked
-            if($code->token->clientSession->revoked) continue;
+                // Skip if client session has been revoked
+                if ($code->token->clientSession->revoked) continue;
 
-            $sub = $code->user_id;
-            $sid = $code->token->clientSession->id;
-            $slo = $code->client->slo;
-            $aud = (Passport::$usesHashids) ? $code->client->key : $code->client->id;
-            $jti = $code->token->id;
+                $sub = $code->user_id;
+                $sid = $code->token->clientSession->id;
+                $slo = $code->client->slo;
+                $aud = (Passport::$usesHashids) ? $code->client->key : $code->client->id;
+                $jti = $code->token->id;
 
-            $secret = $code->client->secret;
+                $secret = $code->client->secret;
 
-            if(Passport::sendSLORequest($slo, $secret, $aud, $sid, $jti, $sub)) {
-                $code->token->clientSession->revoke();
+                if (Passport::sendSLORequest($slo, $secret, $aud, $sid, $jti, $sub)) {
+                    $code->token->clientSession->revoke();
+                }
             }
         }
     }
