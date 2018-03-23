@@ -2,8 +2,12 @@
 
 namespace Qwildz\PassportExtended;
 
+use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Passport as LaravelPassport;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
 
 class Passport extends LaravelPassport
 {
@@ -58,6 +62,37 @@ class Passport extends LaravelPassport
         static::$usesHashids = true;
 
         return new static;
+    }
+
+    public static function sendSLORequest($endpoint, $secret, $aud, $sid, $jti = null, $sub = null)
+    {
+        $builder = (new Builder())
+            ->setIssuer(config('app.url'))
+            ->setAudience($aud)
+            ->setIssuedAt(time())
+            ->set('sid', $sid)
+            ->set('events', ['http://schemas.openid.net/event/backchannel-logout' => (object)[]]);
+
+        if($jti) $builder->setId($jti);
+        if($sub) $builder->setSubject($sub);
+
+        $logoutToken = $builder->sign(new Sha256(), $secret)
+            ->getToken();
+
+        try {
+            $httpClient = new Client();
+            $response = $httpClient->post($endpoint, [
+                'form_params' => [
+                    'token' => (string) $logoutToken,
+                ]
+            ]);
+
+            if($response->getStatusCode() == 200 || (int) $response->getBody() == 200) {
+                return true;
+            }
+        } catch (Exception $exception) {}
+
+        return false;
     }
 
     public static function generateClientKey()
