@@ -2,15 +2,12 @@
 
 namespace Qwildz\PassportExtended\Http\Controllers;
 
-use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256 as HmacSha256;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
 use League\OAuth2\Server\CryptKey;
@@ -74,9 +71,17 @@ class SessionController
             $session = Session::with('authCodes.token.clientSession', 'authCodes.client')->find($instance->authCode->session_id);
 
             foreach($session->authCodes as $code) {
+                // Skip if client doesn't support SLO or auth code hasn't been exchanged into access token
                 if(! $code->client->slo || ! $code->token) continue;
+
+                // Skip if token doesn't have client session
                 if(! $code->token->clientSession) continue;
+
+                // Skip if client session has been revoked
                 if($code->token->clientSession->revoked) continue;
+
+                // Don't send SLO request to the token's origin
+                if($instance->id == $code->token->id) continue;
 
                 $sub = $instance->user_id;
                 $sid = $code->token->clientSession->id;
@@ -86,28 +91,9 @@ class SessionController
 
                 $secret = $code->client->secret;
 
-                $logoutToken = $builder->unsign()
-                    ->setIssuer(config('app.url'))
-                    ->setSubject($sub)
-                    ->setAudience($aud)
-                    ->setIssuedAt(time())
-                    ->setId($jti)
-                    ->set('sid', $sid)
-                    ->set('events', ['http://schemas.openid.net/event/backchannel-logout' => (object)[]])
-                    ->sign(new HmacSha256(), $secret)
-                    ->getToken();
-
-                try {
-                    $response = $httpClient->post($slo, [
-                        'form_params' => [
-                            'token' => (string) $logoutToken,
-                        ]
-                    ]);
-
-                    if($response->getStatusCode() == 200 || (int) $response->getBody() == 200) {
-                        $code->token->clientSession->revoke();
-                    }
-                } catch (Exception $exception) {}
+                if(Passport::sendSLORequest($slo, $secret, $aud, $sid, $jti, $sub)) {
+                    $code->token->clientSession->revoke();
+                }
             }
         }
 
