@@ -55,7 +55,7 @@ class ClientController extends PassportClientController
         ])->validate();
 
         return $this->clients->update2(
-            $client, $request->name, $request->redirect, $request->trusted, $request->sso
+            $client, $request->name, $request->redirect, $request->trusted, $request->sso, $request->slo
         );
     }
     

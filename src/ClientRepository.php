@@ -12,7 +12,7 @@ class ClientRepository extends PassportClientRepository
      */
     public function find($id, $useHashids = true)
     {
-        if(Passport::$usesHashids && $useHashids) {
+        if (Passport::$usesHashids && $useHashids) {
             $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id)[0];
         }
         return Client::find($id);
@@ -21,13 +21,13 @@ class ClientRepository extends PassportClientRepository
     /**
      * Get a client instance for the given ID and user ID.
      *
-     * @param  int  $clientId
-     * @param  mixed  $userId
+     * @param  int $clientId
+     * @param  mixed $userId
      * @return Client|null
      */
     public function findForUser($clientId, $userId, $useHashids = true)
     {
-        if(Passport::$usesHashids && $useHashids) {
+        if (Passport::$usesHashids && $useHashids) {
             $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId)[0];
         }
 
@@ -55,9 +55,10 @@ class ClientRepository extends PassportClientRepository
      * @param  bool $password
      * @param bool $trusted
      * @param bool $sso
+     * @param string $slo
      * @return \Laravel\Passport\Client
      */
-    public function create($userId, $name, $redirect, $personalAccess = false, $password = false, $trusted = false, $sso = false)
+    public function create($userId, $name, $redirect, $personalAccess = false, $password = false, $trusted = false, $sso = false, $slo = null)
     {
         $client = (new Client)->forceFill([
             'user_id' => $userId,
@@ -69,6 +70,7 @@ class ClientRepository extends PassportClientRepository
             'revoked' => false,
             'trusted' => $trusted,
             'sso' => $sso,
+            'slo' => $slo,
         ]);
 
         $client->save();
@@ -84,12 +86,17 @@ class ClientRepository extends PassportClientRepository
      * @param  string $redirect
      * @param  bool $trusted
      * @param  bool $sso
+     * @param  string $slo
      * @return \Laravel\Passport\Client
      */
-    public function update2(Client $client, $name, $redirect, $trusted, $sso)
+    public function update2(Client $client, $name, $redirect, $trusted, $sso, $slo)
     {
         $client->forceFill([
-            'name' => $name, 'redirect' => $redirect, 'trusted' => $trusted, 'sso' => $sso
+            'name' => $name,
+            'redirect' => $redirect,
+            'trusted' => $trusted,
+            'sso' => $sso,
+            'slo' => $slo,
         ])->save();
 
         return $client;
