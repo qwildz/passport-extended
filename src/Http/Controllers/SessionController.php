@@ -53,9 +53,9 @@ class SessionController
         }
     }
 
-    public function endSession($token)
+    public function endSession(Request $request, $sid)
     {
-        $token = $this->parseJwt($token);
+        $token = $this->parseJwt($request->bearerToken());
 
         $key = $this->makeCryptKey('oauth-public.key');
 
