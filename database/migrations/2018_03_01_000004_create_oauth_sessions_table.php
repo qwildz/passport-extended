@@ -14,8 +14,8 @@ class CreateOauthSessionsTable extends Migration
     public function up()
     {
         Schema::create('oauth_sessions', function (Blueprint $table) {
-            $table->string('id', 100)->primary();
-            $table->string('token_id', 100)->index();
+            $table->string('id', 100);
+            $table->string('token_id', 100)->primary();
             $table->boolean('revoked');
             $table->timestamps();
             $table->dateTime('revoked_at')->nullable();
