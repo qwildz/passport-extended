@@ -96,6 +96,10 @@ class SessionController
                         $code->token->clientSession->revoke();
                     }
                 }
+
+                session()->setId($instance->authCode->session_id);
+                session()->invalidate();
+                session()->regenerate(true);
             }
         }
 
