@@ -66,6 +66,7 @@ class SessionController
             throw new ModelNotFoundException('Token is invalid.');
 
         $instance->revoke();
+        optional($instance->clientSession)->revoke();
 
         if($instance->authCode) {
             $session = Session::with('authCodes.token.clientSession', 'authCodes.client')->find($instance->authCode->session_id);
@@ -93,6 +94,7 @@ class SessionController
                     $secret = $code->client->secret;
 
                     if (Passport::sendSLORequest($slo, $secret, $aud, $sid, $jti, $sub)) {
+                        $code->token->revoke();
                         $code->token->clientSession->revoke();
                     }
                 }
