@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace Qwildz\PassportExtended\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Encryption\DecryptException;
