@@ -11,6 +11,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
 use League\OAuth2\Server\CryptKey;
+use Qwildz\PassportExtended\ClientRepository;
 use Qwildz\PassportExtended\ClientSession;
 use Qwildz\PassportExtended\Passport;
 use Qwildz\PassportExtended\Session;
@@ -32,7 +33,7 @@ class SessionController
         if(!$request->has('sid')) throw new BadRequestHttpException();
 
         $token = $this->parseJwt($request->bearerToken());
-        $instance = $this->getTokenInstance($token->getClaim('jti'));
+        $instance = $this->getTokenInstance($token->getClaim('jti'))->load('authCode.session');
         $client = $instance->client;
 
         //$encrypter = new Encrypter(hash('md5', $client->secret), 'AES-256-CBC');
@@ -47,7 +48,13 @@ class SessionController
             $clientSession->revoked = false;
             $clientSession->save();
 
-            return ['status' => 'ok'];
+            $schemeRedirect = parse_url($client->redirect, PHP_URL_SCHEME);
+            $hostRedirect = parse_url($client->redirect, PHP_URL_HOST);
+            $salt = uniqid(mt_rand());
+
+            $state = hash('sha256', $client->key . $schemeRedirect . '://' . $hostRedirect . hash('sha256', $instance->authCode->session->id) . $salt) . '.' . $salt;
+
+            return ['status' => 'ok', 'state' => $state];
         } catch (DecryptException $exception) {
             throw new UnprocessableEntityHttpException('Cannot decrypt the sid.');
         }

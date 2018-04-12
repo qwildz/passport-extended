@@ -44,6 +44,8 @@ class Passport extends LaravelPassport
                 ]);
             });
 
+            $router->view('/op-frame', 'opframe');
+
             $router->group(['middleware' => ['api', 'throttle']], function ($router) {
                 $router->delete('/{token}', [
                     'uses' => 'SessionController@endSession',
