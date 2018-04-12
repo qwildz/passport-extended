@@ -30,7 +30,7 @@ class OpbsCookie
 
         if($generateOpbs) {
             $opbs = hash('sha256', $request->session()->getId());
-            $cookie = cookie()->make('opbs', $opbs, (2 * 60 * 60), null, null, true, false, false, null);
+            $cookie = cookie()->forever('opbs', $opbs, null, null, true, false, false, null);
 
             return $response->withCookie($cookie);
         }
