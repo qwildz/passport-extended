@@ -33,6 +33,12 @@ class AuthorizationController extends PassportAuthorizationController
                 $client = $clients->find($authRequest->getClient()->getIdentifier(), false)
             );
 
+            if (method_exists($user, 'checkAccessToClient')) {
+                if (! $user->checkAccessToClient($client)) {
+                    return $this->response->redirectGuest('/noaccess?client_id='.$client->key);
+                }
+            }
+
             if(Passport::$usesHashids) {
                 $key = 'login_'.$client->key.'_'.$request->get('state');
             } else {
