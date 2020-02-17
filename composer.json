@@ -15,8 +15,8 @@
     "require": {
         "php":"^7.0",
         "laravel/framework": "*",
-        "laravel/passport": "^5.0",
-        "vinkla/hashids": "^4.0"
+        "laravel/passport": "^8.0",
+        "vinkla/hashids": "*"
     },
     "license": "MIT",
     "authors": [
