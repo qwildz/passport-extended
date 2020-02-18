@@ -30,7 +30,11 @@
                     <tr>
                         <th>Client ID</th>
                         <th>Name</th>
+                        <th>Key</th>
                         <th>Secret</th>
+                        <th>Trusted</th>
+                        <th>SSO</th>
+                        <th>SLO</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -48,9 +52,29 @@
                             {{ client.name }}
                         </td>
 
+                        <!-- Key -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.key ? client.key : "-" }}</code>
+                        </td>
+
                         <!-- Secret -->
                         <td style="vertical-align: middle;">
                             <code>{{ client.secret }}</code>
+                        </td>
+
+                        <!-- Trusted -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.trusted ? "Yes" : "No" }}</code>
+                        </td>
+
+                        <!-- SSO -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.sso ? "Yes" : "No" }}</code>
+                        </td>
+
+                        <!-- SLO -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.slo ? "Yes" : "No" }}</code>
                         </td>
 
                         <!-- Edit Button -->
