@@ -13,6 +13,7 @@ class ClientSession extends PassportClient
      * @var string
      */
     protected $table = 'oauth_sessions';
+    protected $primaryKey = 'token_id';
 
     /**
      * The attributes that should be cast to native types.
