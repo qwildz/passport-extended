@@ -91,7 +91,7 @@ trait SSOControllerTrait
                 if ($code->token->clientSession->revoked) continue;
 
                 $sub = $code->user_id;
-                $sid = $code->token->clientSession->id;
+                $sid = $code->token->clientSession->session_id;
                 $slo = $code->client->slo;
                 $aud = (Passport::$usesHashids) ? $code->client->key : $code->client->id;
                 $jti = $code->token->id;
