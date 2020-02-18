@@ -38,7 +38,7 @@ trait SSOTrait
                 $clientId = $parameter['client_id'];
             }
 
-            return Client::find($clientId);
+            return Passport::client()->find($clientId);
         }
 
         return null;

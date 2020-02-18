@@ -20,8 +20,8 @@ class ClientSession extends PassportClient
      * @var array
      */
     protected $casts = [
-        'id' => 'string',
         'token_id' => 'string',
+        'session_id' => 'string',
         'revoked' => 'bool',
     ];
 
@@ -31,7 +31,7 @@ class ClientSession extends PassportClient
 
     public function token()
     {
-        return $this->belongsTo(Token::class);
+        return $this->belongsTo(Passport::tokenModel());
     }
 
     public function revoke()

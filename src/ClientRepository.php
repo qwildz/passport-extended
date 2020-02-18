@@ -2,6 +2,7 @@
 
 namespace Qwildz\PassportExtended;
 
+use Illuminate\Support\Str;
 use Laravel\Passport\ClientRepository as PassportClientRepository;
 use Vinkla\Hashids\Facades\Hashids;
 
@@ -15,15 +16,17 @@ class ClientRepository extends PassportClientRepository
         if (Passport::$usesHashids && $useHashids) {
             $id = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($id)[0];
         }
-        return Client::find($id);
+
+        return parent::find($id);
     }
 
     /**
      * Get a client instance for the given ID and user ID.
      *
-     * @param  int $clientId
-     * @param  mixed $userId
-     * @return Client|null
+     * @param int $clientId
+     * @param mixed $userId
+     * @param bool $useHashids
+     * @return \Laravel\Passport\Client|Client|null
      */
     public function findForUser($clientId, $userId, $useHashids = true)
     {
@@ -31,39 +34,30 @@ class ClientRepository extends PassportClientRepository
             $clientId = Hashids::connection(config('passport-extended.client.key_hashid_connection', 'main'))->decode($clientId)[0];
         }
 
-        return Client::where('id', $clientId)
-            ->where('user_id', $userId)
-            ->first();
+        return parent::findForUser($clientId, $userId);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function forUser($userId)
-    {
-        return Client::where('user_id', $userId)
-            ->orderBy('name', 'asc')->get();
-    }
 
     /**
      * Store a new client.
      *
-     * @param  int $userId
-     * @param  string $name
-     * @param  string $redirect
-     * @param  bool $personalAccess
-     * @param  bool $password
+     * @param int $userId
+     * @param string $name
+     * @param string $redirect
+     * @param bool $personalAccess
+     * @param bool $password
+     * @param bool $confidential
      * @param bool $trusted
      * @param bool $sso
      * @param string $slo
      * @return \Laravel\Passport\Client
      */
-    public function create($userId, $name, $redirect, $personalAccess = false, $password = false, $trusted = false, $sso = false, $slo = null)
+    public function create($userId, $name, $redirect, $personalAccess = false, $password = false, $confidential = true, $trusted = false, $sso = false, $slo = null)
     {
-        $client = (new Client)->forceFill([
+        $client = (Passport::client())->forceFill([
             'user_id' => $userId,
             'name' => $name,
-            'secret' => str_random(config('passport-extended.client.secret_length', 40)),
+            'secret' => ($confidential || $personalAccess) ? Str::random(config('passport-extended.client.secret_length', 40)) : null,
             'redirect' => $redirect,
             'personal_access_client' => $personalAccess,
             'password_client' => $password,
@@ -108,7 +102,7 @@ class ClientRepository extends PassportClientRepository
     public function regenerateSecret(\Laravel\Passport\Client $client)
     {
         $client->forceFill([
-            'secret' => str_random(config('passport-extended.client.secret_length', 40)),
+            'secret' => Str::random(config('passport-extended.client.secret_length', 40)),
         ])->save();
 
         return $client;

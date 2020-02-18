@@ -29,26 +29,26 @@
                     <!-- Personal Access Tokens -->
                     <table class="table table-borderless mb-0" v-if="tokens.length > 0">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>Name</th>
+                            <th></th>
+                        </tr>
                         </thead>
 
                         <tbody>
-                            <tr v-for="token in tokens">
-                                <!-- Client Name -->
-                                <td style="vertical-align: middle;">
-                                    {{ token.name }}
-                                </td>
+                        <tr v-for="token in tokens">
+                            <!-- Client Name -->
+                            <td style="vertical-align: middle;">
+                                {{ token.name }}
+                            </td>
 
-                                <!-- Delete Button -->
-                                <td style="vertical-align: middle;">
-                                    <a class="action-link text-danger" @click="revoke(token)">
-                                        Delete
-                                    </a>
-                                </td>
-                            </tr>
+                            <!-- Delete Button -->
+                            <td style="vertical-align: middle;">
+                                <a class="action-link text-danger" @click="revoke(token)">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -91,7 +91,7 @@
                             </div>
 
                             <!-- Scopes -->
-                            <div class="form-group" v-if="scopes.length > 0">
+                            <div class="form-group row" v-if="scopes.length > 0">
                                 <label class="col-md-4 col-form-label">Scopes</label>
 
                                 <div class="col-md-6">
@@ -99,10 +99,10 @@
                                         <div class="checkbox">
                                             <label>
                                                 <input type="checkbox"
-                                                    @click="toggleScope(scope.id)"
-                                                    :checked="scopeIsAssigned(scope.id)">
+                                                       @click="toggleScope(scope.id)"
+                                                       :checked="scopeIsAssigned(scope.id)">
 
-                                                    {{ scope.id }}
+                                                {{ scope.id }}
                                             </label>
                                         </div>
                                     </div>
@@ -206,9 +206,9 @@
              */
             getTokens() {
                 axios.get('/oauth/personal-access-tokens')
-                        .then(response => {
-                            this.tokens = response.data;
-                        });
+                    .then(response => {
+                        this.tokens = response.data;
+                    });
             },
 
             /**
@@ -216,9 +216,9 @@
              */
             getScopes() {
                 axios.get('/oauth/scopes')
-                        .then(response => {
-                            this.scopes = response.data;
-                        });
+                    .then(response => {
+                        this.scopes = response.data;
+                    });
             },
 
             /**
@@ -237,22 +237,22 @@
                 this.form.errors = [];
 
                 axios.post('/oauth/personal-access-tokens', this.form)
-                        .then(response => {
-                            this.form.name = '';
-                            this.form.scopes = [];
-                            this.form.errors = [];
+                    .then(response => {
+                        this.form.name = '';
+                        this.form.scopes = [];
+                        this.form.errors = [];
 
-                            this.tokens.push(response.data.token);
+                        this.tokens.push(response.data.token);
 
-                            this.showAccessToken(response.data.accessToken);
-                        })
-                        .catch(error => {
-                            if (typeof error.response.data === 'object') {
-                                this.form.errors = _.flatten(_.toArray(error.response.data.errors));
-                            } else {
-                                this.form.errors = ['Something went wrong. Please try again.'];
-                            }
-                        });
+                        this.showAccessToken(response.data.accessToken);
+                    })
+                    .catch(error => {
+                        if (typeof error.response.data === 'object') {
+                            this.form.errors = _.flatten(_.toArray(error.response.data.errors));
+                        } else {
+                            this.form.errors = ['Something went wrong. Please try again.'];
+                        }
+                    });
             },
 
             /**
@@ -289,9 +289,9 @@
              */
             revoke(token) {
                 axios.delete('/oauth/personal-access-tokens/' + token.id)
-                        .then(response => {
-                            this.getTokens();
-                        });
+                    .then(response => {
+                        this.getTokens();
+                    });
             }
         }
     }

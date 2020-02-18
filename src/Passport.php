@@ -37,7 +37,7 @@ class Passport extends LaravelPassport
 
         $options = array_merge($defaultOptions, $options);
 
-        Route::group($options, function ($router) use ($callback) {
+        Route::group($options, function ($router) {
             $router->group(['middleware' => ['auth:api']], function ($router) {
                 $router->post('/set-sid', [
                     'uses' => 'SessionController@setSessionId',
@@ -69,17 +69,16 @@ class Passport extends LaravelPassport
     public static function sendSLORequest($endpoint, $secret, $aud, $sid, $jti = null, $sub = null)
     {
         $builder = (new Builder())
-            ->setIssuer(config('app.url'))
-            ->setAudience($aud)
-            ->setIssuedAt(time())
-            ->set('sid', $sid)
-            ->set('events', ['http://schemas.openid.net/event/backchannel-logout' => (object)[]]);
+            ->issuedBy(config('app.url'))
+            ->permittedFor($aud)
+            ->issuedAt(time())
+            ->withClaim('sid', $sid)
+            ->withClaim('events', ['http://schemas.openid.net/event/backchannel-logout' => (object)[]]);
 
-        if($jti) $builder->setId($jti);
-        if($sub) $builder->setSubject($sub);
+        if($jti) $builder->identifiedBy($jti);
+        if($sub) $builder->relatedTo($sub);
 
-        $logoutToken = $builder->sign(new Sha256(), $secret)
-            ->getToken();
+        $logoutToken = $builder->getToken(new Sha256(), $secret);
 
         try {
             $httpClient = new Client();
@@ -95,14 +94,5 @@ class Passport extends LaravelPassport
         } catch (Exception $exception) {}
 
         return false;
-    }
-
-    public static function generateClientKey()
-    {
-        $clients = Client::whereNull('key')->get();
-        foreach ($clients as $client) {
-            $client->key = str_random(config('passport-extended.client.key_length', 20));
-            $client->save();
-        }
     }
 }

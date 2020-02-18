@@ -23,12 +23,12 @@ class Token extends PassportToken
      */
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(Passport::clientModel());
     }
 
     public function authCode()
     {
-        return $this->belongsTo(AuthCode::class);
+        return $this->belongsTo(Passport::authCodeModel());
     }
 
     public function clientSession()

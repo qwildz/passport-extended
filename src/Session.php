@@ -40,7 +40,7 @@ class Session extends Model
      */
     public function authCodes()
     {
-        return $this->hasMany(AuthCode::class);
+        return $this->hasMany(Passport::authCodeModel());
     }
 
     /**
@@ -50,6 +50,6 @@ class Session extends Model
      */
     public function tokens()
     {
-        return $this->hasManyThrough(Token::class, AuthCode::class);
+        return $this->hasManyThrough(Passport::tokenModel(), Passport::authCodeModel());
     }
 }

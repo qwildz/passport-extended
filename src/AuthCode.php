@@ -15,16 +15,6 @@ class AuthCode extends PassportAuthCode
         'session_id' => 'string',
     ];
 
-    /**
-     * Get the client that the token belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
-
     public function session()
     {
         return $this->belongsTo(Session::class);
@@ -32,6 +22,6 @@ class AuthCode extends PassportAuthCode
 
     public function token()
     {
-        return $this->hasOne(Token::class);
+        return $this->hasOne(Passport::tokenModel());
     }
 }

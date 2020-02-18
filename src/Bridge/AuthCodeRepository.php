@@ -6,6 +6,7 @@ use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Connection;
 use Laravel\Passport\Bridge\AuthCodeRepository as PassportAuthCodeRepository;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
+use Qwildz\PassportExtended\Passport;
 
 class AuthCodeRepository extends PassportAuthCodeRepository
 {
@@ -41,7 +42,7 @@ class AuthCodeRepository extends PassportAuthCodeRepository
      */
     public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity)
     {
-        $this->database->table('oauth_auth_codes')->insert([
+        $attributes = [
             'id' => $authCodeEntity->getIdentifier(),
             'user_id' => $authCodeEntity->getUserIdentifier(),
             'client_id' => $authCodeEntity->getClient()->getIdentifier(),
@@ -49,6 +50,8 @@ class AuthCodeRepository extends PassportAuthCodeRepository
             'revoked' => false,
             'expires_at' => $authCodeEntity->getExpiryDateTime(),
             'session_id' => $this->session->getId(),
-        ]);
+        ];
+
+        Passport::authCode()->setRawAttributes($attributes)->save();
     }
 }

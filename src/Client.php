@@ -29,23 +29,9 @@ class Client extends PassportClient
         }
     }
 
-    /**
-     * Get all of the authentication codes for the client.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function authCodes()
+    /** inherit */
+    public function skipsAuthorization()
     {
-        return $this->hasMany(AuthCode::class, 'client_id');
-    }
-
-    /**
-     * Get all of the tokens that belong to the client.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function tokens()
-    {
-        return $this->hasMany(Token::class, 'client_id');
+        return $this->trusted;
     }
 }

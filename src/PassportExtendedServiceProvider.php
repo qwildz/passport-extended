@@ -10,6 +10,7 @@ use Laravel\Passport\Bridge\RefreshTokenRepository;
 use Laravel\Passport\Console\ClientCommand;
 use Laravel\Passport\Console\InstallCommand;
 use Laravel\Passport\Console\KeysCommand;
+use Laravel\Passport\Console\PurgeCommand;
 use Laravel\Passport\Guards\TokenGuard;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
@@ -27,7 +28,9 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
      */
     public function boot()
     {
-        $this->setupConfig();
+        Passport::useTokenModel(Token::class);
+        Passport::useClientModel(Client::class);
+        Passport::useAuthCodeModel(AuthCode::class);
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'passport');
 
@@ -37,17 +40,22 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             $this->registerMigrations();
 
             $this->publishes([
+                __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], 'passport-migrations');
+
+            $this->publishes([
                 __DIR__.'/../resources/views' => base_path('resources/views/vendor/passport'),
             ], 'passport-views');
 
             $this->publishes([
-                __DIR__.'/../resources/assets/js/components' => base_path('resources/assets/js/components/passport'),
+                __DIR__ . '/../resources/js/components' => base_path('resources/js/components/passport'),
             ], 'passport-components');
 
             $this->commands([
                 InstallCommand::class,
                 ClientCommand::class,
-                KeysCommand::class
+                KeysCommand::class,
+                PurgeCommand::class,
             ]);
         }
     }
@@ -56,6 +64,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
      * Make the authorization service instance.
      *
      * @return AuthorizationServer
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function makeAuthorizationServer()
     {
@@ -63,7 +72,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             $this->app->make(Bridge\ClientRepository::class),
             $this->app->make(AccessTokenRepository::class),
             $this->app->make(ScopeRepository::class),
-            $this->makeCryptKey('oauth-private.key'),
+            $this->makeCryptKey('private'),
             app('encrypter')->getKey()
         );
     }
@@ -86,6 +95,7 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     protected function buildAuthCodeGrant()
     {
@@ -95,13 +105,6 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
             new DateInterval('PT10M'),
             $this->app->make(Connection::class)
         );
-    }
-
-    protected function setupConfig()
-    {
-        $source = realpath(__DIR__.'/../resources/config/passport-extended.php');
-        $this->publishes([$source => config_path('passport-extended.php')]);
-        $this->mergeConfigFrom($source, 'passport-extended');
     }
 
     /**
@@ -114,9 +117,34 @@ class PassportExtendedServiceProvider extends PassportServiceProvider
         if (Passport::$runsMigrations) {
             return $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         }
+    }
 
-        $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], 'passport-migrations');
+    /**
+     * @inheritdoc
+     */
+    public function register()
+    {
+        if (! $this->app->configurationIsCached()) {
+            $this->mergeConfigFrom(__DIR__.'/../config/passport-extended.php', 'passport-extended');
+        }
+
+        $this->registerAuthorizationServer();
+        $this->registerResourceServer();
+        $this->registerGuard();
+        $this->offerPublishing();
+    }
+
+    /**
+     * Setup the resource publishing groups for Passport.
+     *
+     * @return void
+     */
+    protected function offerPublishing()
+    {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/passport-extended.php' => config_path('passport-extended.php'),
+            ], 'passport-extended');
+        }
     }
 }

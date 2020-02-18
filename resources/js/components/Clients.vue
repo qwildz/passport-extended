@@ -27,70 +27,46 @@
 
                 <table class="table table-borderless mb-0" v-if="clients.length > 0">
                     <thead>
-                        <tr>
-                            <th>Client ID</th>
-                            <th>Name</th>
-                            <th>Key</th>
-                            <th>Secret</th>
-                            <th>Trusted</th>
-                            <th>SSO</th>
-                            <th>SLO</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Name</th>
+                        <th>Secret</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        <tr v-for="client in clients">
-                            <!-- ID -->
-                            <td style="vertical-align: middle;">
-                                {{ client.id }}
-                            </td>
+                    <tr v-for="client in clients">
+                        <!-- ID -->
+                        <td style="vertical-align: middle;">
+                            {{ client.id }}
+                        </td>
 
-                            <!-- Name -->
-                            <td style="vertical-align: middle;">
-                                {{ client.name }}
-                            </td>
+                        <!-- Name -->
+                        <td style="vertical-align: middle;">
+                            {{ client.name }}
+                        </td>
 
-                            <!-- Key -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.key ? client.key : "-" }}</code>
-                            </td>
+                        <!-- Secret -->
+                        <td style="vertical-align: middle;">
+                            <code>{{ client.secret }}</code>
+                        </td>
 
-                            <!-- Secret -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.secret }}</code>
-                            </td>
+                        <!-- Edit Button -->
+                        <td style="vertical-align: middle;">
+                            <a class="action-link" tabindex="-1" @click="edit(client)">
+                                Edit
+                            </a>
+                        </td>
 
-                            <!-- Trusted -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.trusted ? "Yes" : "No" }}</code>
-                            </td>
-
-                            <!-- SSO -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.sso ? "Yes" : "No" }}</code>
-                            </td>
-
-                            <!-- SLO -->
-                            <td style="vertical-align: middle;">
-                                <code>{{ client.slo ? "Yes" : "No" }}</code>
-                            </td>
-
-                            <!-- Edit Button -->
-                            <td style="vertical-align: middle;">
-                                <a class="action-link" tabindex="-1" @click="edit(client)">
-                                    Edit
-                                </a>
-                            </td>
-
-                            <!-- Delete Button -->
-                            <td style="vertical-align: middle;">
-                                <a class="action-link text-danger" @click="destroy(client)">
-                                    Delete
-                                </a>
-                            </td>
-                        </tr>
+                        <!-- Delete Button -->
+                        <td style="vertical-align: middle;">
+                            <a class="action-link text-danger" @click="destroy(client)">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -128,7 +104,7 @@
 
                                 <div class="col-md-9">
                                     <input id="create-client-name" type="text" class="form-control"
-                                                                @keyup.enter="store" v-model="createForm.name">
+                                           @keyup.enter="store" v-model="createForm.name">
 
                                     <span class="form-text text-muted">
                                         Something your users will recognize and trust.
@@ -142,10 +118,27 @@
 
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="redirect"
-                                                    @keyup.enter="store" v-model="createForm.redirect">
+                                           @keyup.enter="store" v-model="createForm.redirect">
 
                                     <span class="form-text text-muted">
                                         Your application's authorization callback URL.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Confidential -->
+                            <div class="form-group row">
+                                <label class="col-md-3 col-form-label">Confidential</label>
+
+                                <div class="col-md-9">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" v-model="createForm.confidential">
+                                        </label>
+                                    </div>
+
+                                    <span class="form-text text-muted">
+                                        Require the client to authenticate with a secret. Confidential clients can hold credentials in a secure way without exposing them to unauthorized parties. Public applications, such as native desktop or JavaScript SPA applications, are unable to hold secrets securely.
                                     </span>
                                 </div>
                             </div>
@@ -238,7 +231,7 @@
 
                                 <div class="col-md-9">
                                     <input id="edit-client-name" type="text" class="form-control"
-                                                                @keyup.enter="update" v-model="editForm.name">
+                                           @keyup.enter="update" v-model="editForm.name">
 
                                     <span class="form-text text-muted">
                                         Something your users will recognize and trust.
@@ -252,7 +245,7 @@
 
                                 <div class="col-md-9">
                                     <input type="text" class="form-control" name="redirect"
-                                                    @keyup.enter="update" v-model="editForm.redirect">
+                                           @keyup.enter="update" v-model="editForm.redirect">
 
                                     <span class="form-text text-muted">
                                         Your application's authorization callback URL.
@@ -331,6 +324,7 @@
                     errors: [],
                     name: '',
                     redirect: '',
+                    confidential: true,
                     trusted: false,
                     sso: true,
                     slo: ''
@@ -382,9 +376,9 @@
              */
             getClients() {
                 axios.get('/oauth/clients')
-                        .then(response => {
-                            this.clients = response.data;
-                        });
+                    .then(response => {
+                        this.clients = response.data;
+                    });
             },
 
             /**
@@ -458,9 +452,9 @@
              */
             destroy(client) {
                 axios.delete('/oauth/clients/' + client.id)
-                        .then(response => {
-                            this.getClients();
-                        });
+                    .then(response => {
+                        this.getClients();
+                    });
             }
         }
     }

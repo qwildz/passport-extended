@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Laravel\Passport\Http\Controllers\ClientController as PassportClientController;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
+use Laravel\Passport\Http\Rules\RedirectRule;
 use Qwildz\PassportExtended\ClientRepository;
 
 class ClientController extends PassportClientController
@@ -21,23 +22,27 @@ class ClientController extends PassportClientController
      * ClientController constructor.
      * @param ClientRepository $clients
      * @param ValidationFactory $validation
+     * @param RedirectRule $redirectRule
      */
-    public function __construct(ClientRepository $clients,
-                                ValidationFactory $validation)
-    {
-        parent::__construct($clients, $validation);
+    public function __construct(
+        ClientRepository $clients,
+        ValidationFactory $validation,
+        RedirectRule $redirectRule
+    ) {
+        parent::__construct($clients, $validation, $redirectRule);
     }
 
     public function store(Request $request)
     {
         $this->validation->make($request->all(), [
             'name' => 'required|max:255',
-            'redirect' => 'required|url',
+            'redirect' => ['required', $this->redirectRule],
+            'confidential' => 'boolean',
         ])->validate();
 
         return $this->clients->create(
             $request->user()->getKey(), $request->name, $request->redirect, false, false,
-            $request->trusted, $request->sso
+            (bool) $request->input('confidential', true), $request->trusted, $request->sso, $request->slo
         )->makeVisible('secret');
     }
 
@@ -51,7 +56,7 @@ class ClientController extends PassportClientController
 
         $this->validation->make($request->all(), [
             'name' => 'required|max:255',
-            'redirect' => 'required|url',
+            'redirect' => ['required', $this->redirectRule],
         ])->validate();
 
         return $this->clients->update2(
@@ -67,8 +72,8 @@ class ClientController extends PassportClientController
             return new Response('', 404);
         }
 
-        $this->clients->delete(
-            $client
-        );
+        $this->clients->delete($client);
+
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 }
