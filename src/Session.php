@@ -12,6 +12,7 @@ class Session extends Model
      * @var string
      */
     protected $table = 'sessions';
+    protected $keyType = 'string';
 
     /**
      * The attributes that should be cast to native types.

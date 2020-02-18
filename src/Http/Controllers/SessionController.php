@@ -43,7 +43,7 @@ class SessionController
             $sid = $request->get('sid');
 
             $clientSession = new ClientSession();
-            $clientSession->id = $sid;
+            $clientSession->session_id = $sid;
             $clientSession->token_id = $instance->id;
             $clientSession->revoked = false;
             $clientSession->save();
@@ -93,7 +93,7 @@ class SessionController
                     if ($instance->id == $code->token->id) continue;
 
                     $sub = $instance->user_id;
-                    $sid = $code->token->clientSession->id;
+                    $sid = $code->token->clientSession->session_id;
                     $slo = $code->client->slo;
                     $aud = (Passport::$usesHashids) ? $code->client->key : $code->client->id;
                     $jti = $code->token->id;
