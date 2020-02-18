@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Passport\Passport as LaravelPassport;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
 
 class Passport extends LaravelPassport
 {
@@ -78,10 +79,12 @@ class Passport extends LaravelPassport
         if($jti) $builder->identifiedBy($jti);
         if($sub) $builder->relatedTo($sub);
 
-        $logoutToken = $builder->getToken(new Sha256(), $secret);
+        $logoutToken = $builder->getToken(new Sha256(), new Key($secret));
 
         try {
-            $httpClient = new Client();
+            $httpClient = new Client([
+                'verify' => config('passport-extended.client.verify_slo_cert', true),
+            ]);
             $response = $httpClient->post($endpoint, [
                 'form_params' => [
                     'token' => (string) $logoutToken,
