@@ -37,7 +37,7 @@ class AuthCodeGrant extends LeagueAuthCodeGrant
 
     /**
      * @param AuthCodeRepositoryInterface $authCodeRepository
-     * @param RefreshTokenRepositxoryInterface $refreshTokenRepository
+     * @param RefreshTokenRepositoryInterface $refreshTokenRepository
      * @param \DateInterval $authCodeTTL
      * @param Connection $database
      * @throws \Exception
@@ -48,10 +48,7 @@ class AuthCodeGrant extends LeagueAuthCodeGrant
         DateInterval $authCodeTTL,
         Connection $database
     ) {
-        $this->setAuthCodeRepository($authCodeRepository);
-        $this->setRefreshTokenRepository($refreshTokenRepository);
-        $this->authCodeTTL = $authCodeTTL;
-        $this->refreshTokenTTL = new DateInterval('P1M');
+        parent::__construct($authCodeRepository, $refreshTokenRepository, $authCodeTTL);
 
         if (in_array('sha256', hash_algos(), true)) {
             $s256Verifier = new S256Verifier();

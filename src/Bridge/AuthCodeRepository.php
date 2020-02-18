@@ -11,13 +11,6 @@ use Qwildz\PassportExtended\Passport;
 class AuthCodeRepository extends PassportAuthCodeRepository
 {
     /**
-     * The database connection.
-     *
-     * @var \Illuminate\Database\Connection
-     */
-    protected $database;
-
-    /**
      * The session.
      *
      * @var Session
@@ -27,13 +20,10 @@ class AuthCodeRepository extends PassportAuthCodeRepository
     /**
      * Create a new repository instance.
      *
-     * @param  \Illuminate\Database\Connection $database
-     * @param  Session $session
+     * @param Session $session
      */
-    public function __construct(Connection $database, Session $session)
+    public function __construct(Session $session)
     {
-        parent::__construct($database);
-
         $this->session = $session;
     }
 
