@@ -113,7 +113,7 @@ class ClientRepository extends PassportClientRepository
      */
     public function revoked($id)
     {
-        $client = $this->find($id, false);
+        $client = $this->find($id, Passport::$usesHashids);
 
         return is_null($client) || $client->revoked;
     }
