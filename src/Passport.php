@@ -67,7 +67,7 @@ class Passport extends LaravelPassport
         return new static;
     }
 
-    public static function sendSLORequest($endpoint, $secret, $aud, $sid, $jti = null, $sub = null)
+    public static function sendSLORequest($endpoint, $secret, $aud, $sid, $fallbackJti = null, $sub = null)
     {
         $builder = (new Builder())
             ->issuedBy(config('app.url'))
@@ -76,7 +76,11 @@ class Passport extends LaravelPassport
             ->withClaim('sid', $sid)
             ->withClaim('events', ['http://schemas.openid.net/event/backchannel-logout' => (object)[]]);
 
-        if($jti) $builder->identifiedBy($jti);
+        try {
+            $builder->identifiedBy(bin2hex(random_bytes(30)));
+        } catch (Exception $e) {
+            if($fallbackJti) $builder->identifiedBy($fallbackJti);
+        }
         if($sub) $builder->relatedTo($sub);
 
         $logoutToken = $builder->getToken(new Sha256(), new Key($secret));
