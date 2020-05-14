@@ -2,6 +2,7 @@
 
 namespace Qwildz\PassportExtended\Bridge;
 
+use Laravel\Passport\Bridge\User;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -13,6 +14,7 @@ use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 use Qwildz\PassportExtended\Passport;
+use RuntimeException;
 use Vinkla\Hashids\Facades\Hashids;
 
 class AccessToken implements AccessTokenEntityInterface
@@ -53,7 +55,7 @@ class AccessToken implements AccessTokenEntityInterface
             $aud = $this->getClient()->getIdentifier();
         }
 
-        return (new Builder())
+        $builder = (new Builder())
             ->permittedFor($aud)
             ->identifiedBy($this->getIdentifier())
             ->issuedAt(time())
@@ -61,8 +63,34 @@ class AccessToken implements AccessTokenEntityInterface
             ->canOnlyBeUsedAfter(time())
             ->expiresAt($this->getExpiryDateTime()->getTimestamp())
             ->relatedTo((string) $this->getUserIdentifier())
-            ->withClaim('scopes', $this->getScopes())
-            ->getToken(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()));
+            ->withClaim('scopes', $this->getScopes());
+
+        $this->setAdditionalClaims($builder);
+
+        return $builder->getToken(new Sha256(), new Key($privateKey->getKeyPath(), $privateKey->getPassPhrase()));
+    }
+
+    private function setAdditionalClaims(Builder $builder)
+    {
+        $provider = config('auth.guards.api.provider');
+
+        if (is_null($model = config('auth.providers.'.$provider.'.model'))) {
+            throw new RuntimeException('Unable to determine authentication model from configuration.');
+        }
+
+        if (method_exists($model, 'additionalClaims')) {
+            $user = (new $model)->find($this->getUserIdentifier());
+
+            if (! $user) {
+                return;
+            }
+
+            $claims = $user->additionalClaims();
+
+            foreach($claims as $claim) {
+                $builder->withClaim($claim['name'], $claim['value']);
+            }
+        }
     }
 
     /**
